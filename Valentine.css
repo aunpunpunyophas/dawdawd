@@ -349,6 +349,50 @@ body.show-actions .question-actions {
   line-height: 1.35;
 }
 
+.paper-celebrate-image {
+  display: block;
+  width: min(220px, 82%);
+  margin: 12px auto 0;
+  border-radius: 10px;
+  box-shadow: 0 10px 18px rgba(38, 14, 30, 0.25);
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  transition: opacity 320ms ease, transform 320ms ease;
+  pointer-events: none;
+}
+
+.paper-celebrate-image.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.send-status {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%) translateY(16px);
+  z-index: 30;
+  background: rgba(22, 22, 22, 0.86);
+  color: #fff;
+  font-family: "Mitr", "Kanit", "Prompt", "Noto Sans Thai", "Sarabun", sans-serif;
+  font-size: 14px;
+  line-height: 1.2;
+  padding: 10px 14px;
+  border-radius: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.send-status.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.send-status.is-error {
+  background: rgba(152, 24, 40, 0.92);
+}
+
 @keyframes snowfall {
   0% {
     transform: translate3d(0, -115vh, 0);

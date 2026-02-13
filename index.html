@@ -41,6 +41,7 @@
     <section class="paper-stage" aria-hidden="true">
       <article class="paper-card">
         <p class="paper-message" data-full-text="เราชอบเธอมานานแล้วนะ... ชอบรอยยิ้มของเธอ ชอบทุกอย่างที่เป็นเธอ คือออ... เราลองคบกันดูไหม? 🥺"></p>
+        <img class="paper-celebrate-image" src="happy-cat.jpg" alt="รูปแมวดีใจ" />
       </article>
       <div class="wait-hearts" aria-hidden="true">
         <span class="heart">💗</span>
@@ -69,11 +70,12 @@
       const content = document.querySelector(".center-content");
       const paperStage = document.querySelector(".paper-stage");
       const paperMessage = document.querySelector(".paper-message");
+      const celebrateImage = document.querySelector(".paper-celebrate-image");
       const questionActions = document.querySelector(".question-actions");
       const waitHearts = document.querySelector(".wait-hearts");
       const yesBtn = document.querySelector(".question-yes");
       const noBtn = document.querySelector(".question-no");
-      if (!headline || !cta || !content || !paperStage || !paperMessage || !questionActions || !waitHearts || !yesBtn || !noBtn) return;
+      if (!headline || !cta || !content || !paperStage || !paperMessage || !celebrateImage || !questionActions || !waitHearts || !yesBtn || !noBtn) return;
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const segmenter = ("Segmenter" in Intl)
@@ -124,6 +126,22 @@
         }, reduceMotion ? 0 : 320);
       }
 
+      function showSendStatus(message, isError) {
+        let badge = document.querySelector(".send-status");
+        if (!badge) {
+          badge = document.createElement("div");
+          badge.className = "send-status";
+          document.body.appendChild(badge);
+        }
+        badge.textContent = message;
+        badge.classList.toggle("is-error", Boolean(isError));
+        badge.classList.add("is-visible");
+        window.clearTimeout(showSendStatus._timer);
+        showSendStatus._timer = window.setTimeout(function () {
+          badge.classList.remove("is-visible");
+        }, 2600);
+      }
+
       function sendAnswerEmail(answerText) {
         if (
           !window.emailjs ||
@@ -131,24 +149,40 @@
           EMAILJS_SERVICE_ID === "YOUR_EMAILJS_SERVICE_ID" ||
           EMAILJS_TEMPLATE_ID === "YOUR_EMAILJS_TEMPLATE_ID"
         ) {
+          showSendStatus("EmailJS ยังไม่ตั้งค่า", true);
           return;
         }
 
-        window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        const timeText = new Date().toLocaleString("th-TH");
+        const params = {
           to_email: NOTIFY_EMAIL,
           answer: answerText,
-          answered_at: new Date().toLocaleString("th-TH"),
-          page_title: document.title || "Valentine"
-        }).catch(function (error) {
-          console.error("EmailJS send failed", error);
-        });
+          answered_at: timeText,
+          page_title: document.title || "Valentine",
+          name: "Valentine Web",
+          message: "ผลคำตอบ: " + answerText,
+          time: timeText,
+          email: NOTIFY_EMAIL,
+          user_agent: navigator.userAgent,
+          page_url: window.location.href
+        };
+
+        window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+          .then(function () {
+            showSendStatus("ส่งแจ้งเตือนแล้ว");
+          })
+          .catch(function (error) {
+            console.error("EmailJS send failed", error);
+            showSendStatus("ส่งไม่สำเร็จ: " + ((error && (error.text || error.message)) || "unknown"), true);
+          });
       }
 
-      function finishWithMessage(nextMessage) {
+      function finishWithMessage(nextMessage, showImage) {
         if (questionActions.classList.contains("is-fading-out")) return;
         questionActions.classList.add("is-fading-out");
         waitHearts.classList.add("is-fading-out");
         paperMessage.classList.add("is-fading-out");
+        celebrateImage.classList.remove("is-visible");
         document.body.classList.remove("show-actions");
 
         window.setTimeout(function () {
@@ -157,6 +191,9 @@
           paperMessage.textContent = nextMessage;
           paperMessage.classList.add("is-celebrate");
           paperMessage.classList.remove("is-fading-out");
+          if (showImage) {
+            celebrateImage.classList.add("is-visible");
+          }
         }, reduceMotion ? 0 : 320);
       }
 
@@ -178,12 +215,12 @@
 
       yesBtn.addEventListener("click", function () {
         sendAnswerEmail("เป็นแฟนกันนะ");
-        finishWithMessage("เย้ดีใจที่สุดเลย 🩷 รักน้าาาาาาาาา");
+        finishWithMessage("เย้ดีใจที่สุดเลย 🩷 รักน้าาาาาาาาา", true);
       });
 
       noBtn.addEventListener("click", function () {
         sendAnswerEmail("ขอโทษนะ...");
-        finishWithMessage("ขอบคุณทุกเรื่องที่ผ่านมานะ");
+        finishWithMessage("ขอบคุณทุกเรื่องที่ผ่านมานะ", false);
       });
 
       document.body.classList.add("is-typing-sequence");
