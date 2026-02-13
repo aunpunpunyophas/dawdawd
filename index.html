@@ -60,7 +60,7 @@
   <script>
     (function () {
       const EMAILJS_PUBLIC_KEY = "S6DJOAxCizjZYB9Xp";
-      const EMAILJS_SERVICE_ID = "service_mtkgfi5";
+      const EMAILJS_SERVICE_ID = "service_8pnjpya";
       const EMAILJS_TEMPLATE_ID = "template_psfbgpi";
       const NOTIFY_EMAIL = "aunpunpunyophas@gmail.com";
 
@@ -139,8 +139,8 @@
           answer: answerText,
           answered_at: new Date().toLocaleString("th-TH"),
           page_title: document.title || "Valentine"
-        }).catch(function () {
-          // keep UI flow even if email fails
+        }).catch(function (error) {
+          console.error("EmailJS send failed", error);
         });
       }
 
