@@ -1,0 +1,200 @@
+﻿<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@700&display=swap" rel="stylesheet" />
+  <title>Valentine</title>
+  <link rel="stylesheet" href="Valentine.css" />
+</head>
+<body>
+  <main class="screen" aria-label="Valentine screen">
+    <div class="sparkles" aria-hidden="true">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+
+    <section class="center-content">
+      <p class="headline">เธอ... เค้ามีเรื่องสำคัญจะบอก...</p>
+      <button class="cta" type="button">
+        ลองเปิดอ่านดูนะ
+        <span class="mail">💌</span>
+      </button>
+    </section>
+
+    <section class="paper-stage" aria-hidden="true">
+      <article class="paper-card">
+        <p class="paper-message" data-full-text="เราชอบเธอมานานแล้วนะ... ชอบรอยยิ้มของเธอ ชอบทุกอย่างที่เป็นเธอ คือออ... เราลองคบกันดูไหม? 🥺"></p>
+      </article>
+      <div class="wait-hearts" aria-hidden="true">
+        <span class="heart">💗</span>
+        <span class="heart">💖</span>
+        <span class="heart">💘</span>
+        <span class="heart">💝</span>
+        <span class="heart">💞</span>
+      </div>
+      <div class="question-actions" aria-hidden="true">
+        <button class="question-btn question-yes" type="button">เป็นแฟนกันนะ 💜</button>
+        <button class="question-btn question-no" type="button">ขอโทษนะ...</button>
+      </div>
+    </section>
+
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function () {
+      const EMAILJS_PUBLIC_KEY = "S6DJOAxCizjZYB9Xp";
+      const EMAILJS_SERVICE_ID = "service_mtkgfi5";
+      const EMAILJS_TEMPLATE_ID = "template_psfbgpi";
+      const NOTIFY_EMAIL = "aunpunpunyophas@gmail.com";
+
+      const headline = document.querySelector(".headline");
+      const cta = document.querySelector(".cta");
+      const content = document.querySelector(".center-content");
+      const paperStage = document.querySelector(".paper-stage");
+      const paperMessage = document.querySelector(".paper-message");
+      const questionActions = document.querySelector(".question-actions");
+      const waitHearts = document.querySelector(".wait-hearts");
+      const yesBtn = document.querySelector(".question-yes");
+      const noBtn = document.querySelector(".question-no");
+      if (!headline || !cta || !content || !paperStage || !paperMessage || !questionActions || !waitHearts || !yesBtn || !noBtn) return;
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const segmenter = ("Segmenter" in Intl)
+        ? new Intl.Segmenter("th", { granularity: "grapheme" })
+        : null;
+
+      if (
+        window.emailjs &&
+        EMAILJS_PUBLIC_KEY &&
+        EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY"
+      ) {
+        window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+      }
+
+      function splitText(text) {
+        const value = String(text || "").trim();
+        return segmenter
+          ? Array.from(segmenter.segment(value), function (part) { return part.segment; })
+          : Array.from(value);
+      }
+
+      function typeText(target, text, speed, done) {
+        if (reduceMotion) {
+          target.textContent = text;
+          if (done) done();
+          return;
+        }
+        const chars = splitText(text);
+        let i = 0;
+        target.textContent = "";
+        target.classList.add("typing");
+        const timer = window.setInterval(function () {
+          target.textContent += chars[i];
+          i += 1;
+          if (i >= chars.length) {
+            window.clearInterval(timer);
+            target.classList.remove("typing");
+            if (done) done();
+          }
+        }, speed);
+      }
+
+      function showActions() {
+        window.setTimeout(function () {
+          document.body.classList.add("show-actions");
+          questionActions.setAttribute("aria-hidden", "false");
+          waitHearts.setAttribute("aria-hidden", "false");
+        }, reduceMotion ? 0 : 320);
+      }
+
+      function sendAnswerEmail(answerText) {
+        if (
+          !window.emailjs ||
+          EMAILJS_PUBLIC_KEY === "YOUR_EMAILJS_PUBLIC_KEY" ||
+          EMAILJS_SERVICE_ID === "YOUR_EMAILJS_SERVICE_ID" ||
+          EMAILJS_TEMPLATE_ID === "YOUR_EMAILJS_TEMPLATE_ID"
+        ) {
+          return;
+        }
+
+        window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: NOTIFY_EMAIL,
+          answer: answerText,
+          answered_at: new Date().toLocaleString("th-TH"),
+          page_title: document.title || "Valentine"
+        }).catch(function () {
+          // keep UI flow even if email fails
+        });
+      }
+
+      function finishWithMessage(nextMessage) {
+        if (questionActions.classList.contains("is-fading-out")) return;
+        questionActions.classList.add("is-fading-out");
+        waitHearts.classList.add("is-fading-out");
+        paperMessage.classList.add("is-fading-out");
+        document.body.classList.remove("show-actions");
+
+        window.setTimeout(function () {
+          questionActions.setAttribute("aria-hidden", "true");
+          waitHearts.setAttribute("aria-hidden", "true");
+          paperMessage.textContent = nextMessage;
+          paperMessage.classList.add("is-celebrate");
+          paperMessage.classList.remove("is-fading-out");
+        }, reduceMotion ? 0 : 320);
+      }
+
+      cta.addEventListener("click", function () {
+        if (cta.classList.contains("is-fading-out")) return;
+        cta.classList.add("is-fading-out");
+        content.classList.add("is-fading-away");
+        window.setTimeout(function () {
+          document.body.classList.add("show-paper");
+          paperStage.setAttribute("aria-hidden", "false");
+          typeText(
+            paperMessage,
+            paperMessage.getAttribute("data-full-text"),
+            85,
+            showActions
+          );
+        }, reduceMotion ? 0 : 520);
+      });
+
+      yesBtn.addEventListener("click", function () {
+        sendAnswerEmail("เป็นแฟนกันนะ");
+        finishWithMessage("เย้ดีใจที่สุดเลย 🩷 รักน้าาาาาาาาา");
+      });
+
+      noBtn.addEventListener("click", function () {
+        sendAnswerEmail("ขอโทษนะ...");
+        finishWithMessage("ขอบคุณทุกเรื่องที่ผ่านมานะ");
+      });
+
+      document.body.classList.add("is-typing-sequence");
+      typeText(headline, headline.textContent, 85, function () {
+        window.setTimeout(function () {
+          cta.classList.add("is-visible");
+          document.body.classList.remove("is-typing-sequence");
+        }, reduceMotion ? 0 : 180);
+      });
+    })();
+  </script>
+</body>
+</html>
+
