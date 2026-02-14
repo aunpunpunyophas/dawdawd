@@ -64,6 +64,8 @@
       const EMAILJS_SERVICE_ID = "service_8pnjpya";
       const EMAILJS_TEMPLATE_ID = "template_psfbgpi";
       const NOTIFY_EMAIL = "aunpunpunyophas@gmail.com";
+      const YES_IMAGE_URL = "https://i.pinimg.com/236x/43/b1/c2/43b1c2041cd4f5d5bbf8dab471391501.jpg";
+      const NO_IMAGE_URL = "https://cdn.readawrite.com/articles/929/928445/thumbnail/large.gif?4";
 
       const headline = document.querySelector(".headline");
       const cta = document.querySelector(".cta");
@@ -177,7 +179,7 @@
           });
       }
 
-      function finishWithMessage(nextMessage, showImage) {
+      function finishWithMessage(nextMessage, showImage, imageUrl, imageAlt) {
         if (questionActions.classList.contains("is-fading-out")) return;
         questionActions.classList.add("is-fading-out");
         waitHearts.classList.add("is-fading-out");
@@ -192,6 +194,8 @@
           paperMessage.classList.add("is-celebrate");
           paperMessage.classList.remove("is-fading-out");
           if (showImage) {
+            if (imageUrl) celebrateImage.src = imageUrl;
+            celebrateImage.alt = imageAlt || "รูปประกอบข้อความ";
             celebrateImage.classList.add("is-visible");
           }
         }, reduceMotion ? 0 : 320);
@@ -215,12 +219,12 @@
 
       yesBtn.addEventListener("click", function () {
         sendAnswerEmail("เป็นแฟนกันนะ");
-        finishWithMessage("เย้ดีใจที่สุดเลย 🩷 รักน้าาาาาาาาา", true);
+        finishWithMessage("เย้ดีใจที่สุดเลย 🩷 รักน้าาาาาาาาา", true, YES_IMAGE_URL, "รูปแมวดีใจ");
       });
 
       noBtn.addEventListener("click", function () {
         sendAnswerEmail("ขอโทษนะ...");
-        finishWithMessage("ขอบคุณทุกเรื่องที่ผ่านมานะ", false);
+        finishWithMessage("ขอบคุณทุกเรื่องที่ผ่านมานะ", true, NO_IMAGE_URL, "รูปขอบคุณทุกเรื่องที่ผ่านมา");
       });
 
       document.body.classList.add("is-typing-sequence");
@@ -234,4 +238,3 @@
   </script>
 </body>
 </html>
-
